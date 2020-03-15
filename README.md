@@ -14,7 +14,20 @@ $ npm install @dxos/async
 
 ## Usage
 
-// TBD
+```javascript
+import async from '@dxos/async';
+
+const test = async () => {
+  const [getValue, setValue] = trigger();
+  
+  setTimeout(() => {
+    setValue(100);
+  }, 1000);
+
+  const value = await getValue();
+  expect(value).toBe(100);
+};
+```
 
 ## Contributing
 
@@ -22,4 +35,4 @@ PRs accepted.
 
 ## License
 
-GPL-3.0 © dxos
+GPL-3.0 © DxOS
