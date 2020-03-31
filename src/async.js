@@ -2,6 +2,10 @@
 // Copyright 2020 DxOS
 //
 
+import assert from 'assert';
+
+const TRUEFN = () => true;
+
 export const sleep = t => new Promise((resolve) => {
   const finish = Date.now() + t;
   // setTimeout does not guarantee execution at >= the scheduled time and may execute slightly early.
@@ -116,4 +120,36 @@ export const promiseTimeout = (promise, ms) => {
       reject(err);
     });
   });
+};
+
+/**
+ * Create a Promise which will resolve when `eventName` is triggered on `eventEmitter`.
+ * If `checkFn` is specified, it must return truthy for the Promise to resolve.
+ * Example:
+ *   const waitFor123 = waitForEvent(recordProcessor, 'finished', record => record.id === '123');
+ *   recordProcessor.startProcessing();
+ *   const record123 = await waitFor123;
+ * @param eventEmitter
+ * @param eventName
+ * @param [checkFn]
+ * @param [timeout]
+ * @returns {Promise<*>}
+ */
+export const waitForEvent = (eventEmitter, eventName, checkFn = TRUEFN, timeout = 0) => {
+  assert(eventEmitter);
+  assert(eventEmitter.on);
+  assert(eventName);
+  assert(checkFn);
+
+  const [provider, resolver] = trigger();
+  const waiter = (...args) => {
+    if (checkFn(...args)) {
+      eventEmitter.off(eventName, waiter);
+      resolver(...args);
+    }
+  };
+
+  eventEmitter.on(eventName, waiter);
+
+  return timeout ? promiseTimeout(provider(), timeout) : provider();
 };
