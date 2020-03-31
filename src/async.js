@@ -123,11 +123,13 @@ export const promiseTimeout = (promise, ms) => {
 };
 
 /**
- * Create a Promise which will resolve when `eventName` is triggered on `eventEmitter`.
+ * Returns a Promise which will resolve when `eventName` is triggered on `eventEmitter`.
  * If `checkFn` is specified, it must return truthy for the Promise to resolve.
  * Example:
  *   const waitFor123 = waitForEvent(recordProcessor, 'finished', record => record.id === '123');
+ *   # Start processing all the records.
  *   recordProcessor.startProcessing();
+ *   # Wait for record '123' to be processed.
  *   const record123 = await waitFor123;
  * @param eventEmitter
  * @param eventName
