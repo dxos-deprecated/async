@@ -4,7 +4,7 @@
 
 import assert from 'assert';
 
-const TRUEFN = () => true;
+const noop => true;
 
 export const sleep = t => new Promise((resolve) => {
   const finish = Date.now() + t;
@@ -137,7 +137,7 @@ export const promiseTimeout = (promise, ms) => {
  * @param [timeout]
  * @returns {Promise<*>}
  */
-export const waitForEvent = (eventEmitter, eventName, checkFn = TRUEFN, timeout = 0) => {
+export const waitForEvent = (eventEmitter, eventName, checkFn = noop, timeout = 0) => {
   assert(eventEmitter);
   assert(eventEmitter.on);
   assert(eventName);
