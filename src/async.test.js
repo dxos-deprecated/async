@@ -34,6 +34,6 @@ test('promiseTimeout', async () => {
 
   {
     const promise = timeout(() => 'test', 200);
-    await expectToThrow(() => promiseTimeout(promise, 100))
+    await expectToThrow(() => promiseTimeout(promise, 100));
   }
 });

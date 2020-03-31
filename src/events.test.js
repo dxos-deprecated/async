@@ -49,6 +49,6 @@ test('waitForEvent (with test)', async () => {
 test('waitForEvent (exipred)', async () => {
   const emitter = new EventEmitter();
 
-  await expectToThrow(async () => await waitForEvent(emitter, 'test', null, 100));
+  await expectToThrow(() => waitForEvent(emitter, 'test', null, 100));
   expect(emitter.listenerCount('test')).toBe(0);
 });

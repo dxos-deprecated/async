@@ -31,8 +31,8 @@ export const sleep = timeout => new Promise((resolve) => {
  * @param [timeout]
  * @returns {Promise<unknown>}
  */
-export const timeout = (f, timeout = 0) => new Promise(async (resolve, reject) => {
-  let handle = setTimeout(async () => {
+export const timeout = (f, timeout = 0) => new Promise((resolve, reject) => {
+  const handle = setTimeout(async () => {
     try {
       const value = await f();
       resolve(value);
@@ -41,7 +41,7 @@ export const timeout = (f, timeout = 0) => new Promise(async (resolve, reject) =
     } finally {
       clearTimeout(handle);
     }
-  }, timeout)
+  }, timeout);
 });
 
 /**
@@ -82,6 +82,9 @@ export const useValue = (timeout = undefined) => {
   ];
 };
 
+// TODO(burdon): Remove.
+export const trigger = useValue;
+
 /**
  * @param {Promise} promise
  * @param {Number} timeout
@@ -121,7 +124,7 @@ export const promiseTimeout = (promise, timeout) => {
  *
  * @param func {Function<{argv}>}
  */
-// TODO(burdon): Remove?
+// TODO(burdon): Remove and move back to data-cli.
 export const asyncHandler = func => {
   return argv => {
     try {

@@ -17,6 +17,14 @@ export const onEvent = (eventEmitter, eventName, callback) => {
   return () => eventEmitter.off(eventName, callback);
 };
 
+// TODO(burdon): Remove.
+export const addListener = (eventEmitter, eventName, callback) => {
+  const off = onEvent(eventEmitter, eventName, callback);
+  return {
+    remove: () => off()
+  };
+};
+
 /**
  * Waits for an event with an optional test condition.
  * @param {EventEmitter} eventEmitter
@@ -30,12 +38,7 @@ export const waitForEvent = (eventEmitter, eventName, test, timeout) => {
 
   const promise = new Promise((resolve) => {
     off = onEvent(eventEmitter, eventName, (...args) => {
-      if (test) {
-        const value = test(...args);
-        if (value) {
-          resolve(value);
-        }
-      } else {
+      if (!test || test(...args)) {
         resolve(...args);
       }
     });
