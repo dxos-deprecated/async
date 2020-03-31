@@ -4,7 +4,7 @@
 
 import assert from 'assert';
 
-const noop => true;
+const noop = () => true;
 
 export const sleep = t => new Promise((resolve) => {
   const finish = Date.now() + t;
