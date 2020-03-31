@@ -2,8 +2,16 @@
 // Copyright 2020 DxOS
 //
 
-export const sleep = t => new Promise((resolve) => {
-  const finish = Date.now() + t;
+export const noop = (...args) => args;
+
+/**
+ * Timesout after delay.
+ * @param timeout
+ * @returns {Promise<unknown>}
+ */
+export const sleep = timeout => new Promise((resolve) => {
+  const finish = Date.now() + timeout;
+
   // setTimeout does not guarantee execution at >= the scheduled time and may execute slightly early.
   const sleeper = () => {
     const delta = finish - Date.now();
@@ -15,6 +23,25 @@ export const sleep = t => new Promise((resolve) => {
   };
 
   sleeper();
+});
+
+/**
+ * Async timeout
+ * @param f
+ * @param [timeout]
+ * @returns {Promise<unknown>}
+ */
+export const timeout = (f, timeout = 0) => new Promise((resolve, reject) => {
+  const handle = setTimeout(async () => {
+    try {
+      const value = await f();
+      resolve(value);
+    } catch (err) {
+      reject(err);
+    } finally {
+      clearTimeout(handle);
+    }
+  }, timeout);
 });
 
 /**
@@ -33,13 +60,9 @@ export const latch = (n, callback) => () => {
  * Returns a tuple containing a Promise that will be resolved when the resolver function is called.
  *
  * @param {number|undefined} timeout
- *
- * @function Provider
- * @function Resolver
- *
- * @return {[{Provider}, {Resolver}]}}
+ * @return {[Promise, function]}}
  */
-export const trigger = (timeout = undefined) => {
+export const useValue = (timeout = undefined) => {
   let callback;
   const promise = new Promise((resolve, reject) => {
     const handle = timeout
@@ -54,51 +77,28 @@ export const trigger = (timeout = undefined) => {
   });
 
   return [
-    async () => promise,
+    () => promise,
     (value) => callback(value)
   ];
 };
 
-/**
- * Adds the listener and returns a function to remove it.
- * Promotes removing listeners when cleaning up objects (to prevent leaks).
- * @param {EventEmitter} object
- * @param {string} event
- * @param {Function} callback
- */
-export const addListener = (object, event, callback) => {
-  object.on(event, callback);
-
-  return {
-    callback,
-    remove: () => object.removeListener(event, callback) // TODO(burdon): "off"
-  };
-};
+// TODO(burdon): Remove.
+export const trigger = useValue;
 
 /**
- * Wraps the invoked args handler and sets a result attribute with the value
- * returned from the function.
- *
- * @param func {Function<{ argv }>}
+ * @param {Promise} promise
+ * @param {Number} timeout
+ * @returns {Promise<unknown>}
  */
-export const asyncHandler = func => {
-  return argv => {
-    try {
-      argv._result = func(argv);
-    } catch (err) {
-      argv._result = Promise.reject(err);
-    }
-  };
-};
+export const promiseTimeout = (promise, timeout) => {
+  let cancelTimeout;
 
-export const promiseTimeout = (promise, ms) => {
-  let stopTimer;
-
-  const timeout = new Promise((resolve, reject) => {
+  const timeoutPromise = new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
-      reject(new Error(`Timed out in ${ms} ms.`));
-    }, ms);
-    stopTimer = () => {
+      reject(new Error(`Timed out in ${timeout} ms.`));
+    }, timeout);
+
+    cancelTimeout = () => {
       clearTimeout(timer);
       resolve();
     };
@@ -107,13 +107,30 @@ export const promiseTimeout = (promise, ms) => {
   return new Promise((resolve, reject) => {
     Promise.race([
       promise,
-      timeout
-    ]).then((...res) => {
-      stopTimer();
-      resolve(...res);
+      timeoutPromise
+    ]).then((...result) => {
+      cancelTimeout();
+      resolve(...result);
     }, (err) => {
-      stopTimer();
+      cancelTimeout();
       reject(err);
     });
   });
+};
+
+/**
+ * Wraps the invoked args handler and sets a result attribute with the value
+ * returned from the function.
+ *
+ * @param func {Function<{argv}>}
+ */
+// TODO(burdon): Remove and move back to data-cli.
+export const asyncHandler = func => {
+  return argv => {
+    try {
+      argv._result = func(argv);
+    } catch (err) {
+      argv._result = Promise.reject(err);
+    }
+  };
 };
