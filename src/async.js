@@ -131,10 +131,10 @@ export const promiseTimeout = (promise, ms) => {
  *   recordProcessor.startProcessing();
  *   # Wait for record '123' to be processed.
  *   const record123 = await waitFor123;
- * @param eventEmitter
- * @param eventName
- * @param [checkFn]
- * @param [timeout]
+ * @param {EventEmitter} eventEmitter
+ * @param {string} eventName
+ * @param {function} [checkFn]
+ * @param {number} [timeout]
  * @returns {Promise<*>}
  */
 export const waitForEvent = (eventEmitter, eventName, checkFn = noop, timeout = 0) => {
