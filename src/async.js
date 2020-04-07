@@ -117,20 +117,3 @@ export const promiseTimeout = (promise, timeout) => {
     });
   });
 };
-
-/**
- * Wraps the invoked args handler and sets a result attribute with the value
- * returned from the function.
- *
- * @param func {Function<{argv}>}
- */
-// TODO(burdon): Remove and move back to data-cli.
-export const asyncHandler = func => {
-  return argv => {
-    try {
-      argv._result = func(argv);
-    } catch (err) {
-      argv._result = Promise.reject(err);
-    }
-  };
-};
