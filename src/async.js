@@ -132,6 +132,7 @@ export const waitForCondition = (condFn, timeout = 0, interval = 10) => {
   const waiter = async () => {
     while (!stopTime || Date.now() < stopTime) {
       try {
+        // eslint-disable-next-line no-await-in-loop
         const value = await condFn();
         if (value) {
           resolver(value);
