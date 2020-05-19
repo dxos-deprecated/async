@@ -128,7 +128,7 @@ export const promiseTimeout = (promise, timeout) => {
  */
 export const waitForCondition = (condFn, timeout = 0, interval = 10) => {
   const stopTime = timeout ? Date.now() + timeout : 0;
-  const [provider, resolver] = trigger();
+  const [provider, resolver] = useValue();
   const waiter = async () => {
     while (!stopTime || Date.now() < stopTime) {
       try {
