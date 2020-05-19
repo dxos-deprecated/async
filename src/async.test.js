@@ -4,7 +4,7 @@
 
 // dxos-testing-browser
 
-import { sleep, useValue, promiseTimeout, timeout } from './async';
+import { sleep, useValue, promiseTimeout, timeout, waitForCondition } from './async';
 import { expectToThrow } from './testing';
 
 test('sleep', async () => {
@@ -35,5 +35,19 @@ test('promiseTimeout', async () => {
   {
     const promise = timeout(() => 'test', 200);
     await expectToThrow(() => promiseTimeout(promise, 100));
+  }
+});
+
+test('waitForCondition', async () => {
+  {
+    const stop = Date.now() + 100;
+    const value = await waitForCondition(() => Date.now() > stop, 200);
+    expect(value).toBe(true);
+    expect(Date.now()).toBeGreaterThanOrEqual(stop);
+  }
+
+  {
+    const stop = Date.now() + 200;
+    await expectToThrow(() => waitForCondition(() => Date.now() > stop, 100));
   }
 });
