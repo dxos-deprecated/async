@@ -2,6 +2,8 @@
 // Copyright 2020 DxOS
 //
 
+import assert from 'assert';
+
 export const noop = (...args) => args;
 
 /**
@@ -116,4 +118,38 @@ export const promiseTimeout = (promise, timeout) => {
       reject(err);
     });
   });
+};
+
+/**
+ * Returns a Promise which resolves when `condFn` returns truthy. They value returned by
+ * `condFn` is used to resolve the Promise.
+ * @param {function} condFn
+ * @param {number} [timeout] How long to wait, in milliseconds (0 = no timeout).
+ * @param {number} [interval=10] How frequently to check, in milliseconds.
+ * @returns {*}
+ */
+export const waitForCondition = (condFn, timeout = 0, interval = 10) => {
+  assert(condFn);
+  assert(interval > 0);
+
+  const stopTime = timeout ? Date.now() + timeout : 0;
+  const [provider, resolver] = trigger();
+  const waiter = async () => {
+    while (!stopTime || Date.now() < stopTime) {
+      try {
+        const value = await condFn();
+        if (value) {
+          resolver(value);
+          break;
+        }
+      } catch (e) {
+        // pass...
+      }
+      // eslint-disable-next-line no-await-in-loop
+      await sleep(interval);
+    }
+  };
+  setTimeout(waiter, 0);
+
+  return timeout ? promiseTimeout(provider(), timeout) : provider();
 };
