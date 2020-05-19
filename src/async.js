@@ -119,7 +119,7 @@ export const promiseTimeout = (promise, timeout) => {
 };
 
 /**
- * Returns a Promise which resolves when `condFn` returns truthy. They value returned by
+ * Returns a Promise which resolves when `condFn` returns truthy. The value returned by
  * `condFn` is used to resolve the Promise.
  * @param {function} condFn
  * @param {number} [timeout] How long to wait, in milliseconds (0 = no timeout).
