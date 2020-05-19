@@ -2,8 +2,6 @@
 // Copyright 2020 DxOS
 //
 
-import assert from 'assert';
-
 export const noop = (...args) => args;
 
 /**
@@ -129,9 +127,6 @@ export const promiseTimeout = (promise, timeout) => {
  * @returns {*}
  */
 export const waitForCondition = (condFn, timeout = 0, interval = 10) => {
-  assert(condFn);
-  assert(interval > 0);
-
   const stopTime = timeout ? Date.now() + timeout : 0;
   const [provider, resolver] = trigger();
   const waiter = async () => {
