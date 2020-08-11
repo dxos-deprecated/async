@@ -60,7 +60,7 @@ export const latch = (n, callback) => () => {
  * Returns a tuple containing a Promise that will be resolved when the resolver function is called.
  *
  * @param {number|undefined} timeout
- * @return {[Promise, function]}}
+ * @return {[() => Promise, () => void]}}
  */
 export const useValue = (timeout = undefined) => {
   let callback;
