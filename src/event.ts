@@ -28,7 +28,7 @@
  * 6. Removes the cases where event names intersect when used in cases with inheritance.
  * 7. Remove the need to namespace events when developing a class with events that will be used as a base-class.
  */
-export class Event<T> implements ReadOnlyEvent<T> {
+export class Event<T = void> implements ReadOnlyEvent<T> {
   private readonly _listeners = new Set<(data: T) => void>();
   private readonly _onceListeners = new Set<(data: T) => void>();
 
@@ -152,7 +152,7 @@ export class Event<T> implements ReadOnlyEvent<T> {
  *
  * Usefull in cases where you want to explicitly prohibit calling `emit` method.
  */
-export interface ReadOnlyEvent<T> {
+export interface ReadOnlyEvent<T = void> {
   /**
    * Register an event listener.
    *
