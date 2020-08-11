@@ -5,7 +5,7 @@
  * ```javascript
  * class Model {
  *   public readonly update = new Event<UpdateData>();
- *   private readonly privateEvent = new Event<{}>();
+ *   private readonly privateEvent = new Event<void>();
  *
  *   onUpdate(data: UpdateData) {
  *     ...
