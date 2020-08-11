@@ -83,7 +83,7 @@ export class Event<T> implements ReadOnlyEvent<T> {
   /**
    * Unsubscribe this callback from new events. Inncludes persistent and once-listeners.
    *
-   * NOTE: It is recomended to us `Event.on`'s return value.
+   * NOTE: It is recomended to use `Event.on`'s return value instead.
    *
    * If the callback is not subscribed this is no-op.
    *
