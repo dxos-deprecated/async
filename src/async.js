@@ -2,6 +2,8 @@
 // Copyright 2020 DxOS
 //
 
+import { trigger } from './trigger';
+
 export const noop = (...args) => args;
 
 /**
@@ -57,35 +59,6 @@ export const latch = (n, callback) => () => {
 };
 
 /**
- * Returns a tuple containing a Promise that will be resolved when the resolver function is called.
- *
- * @param {number|undefined} timeout
- * @return {[() => Promise, () => void]}}
- */
-export const useValue = (timeout = undefined) => {
-  let callback;
-  const promise = new Promise((resolve, reject) => {
-    const handle = timeout
-      ? setTimeout(() => reject(new Error(`Timed out after ${timeout}ms`)), timeout) : null;
-
-    callback = (...args) => {
-      if (handle) {
-        clearTimeout(handle);
-      }
-      resolve(...args);
-    };
-  });
-
-  return [
-    () => promise,
-    (value) => callback(value)
-  ];
-};
-
-// TODO(burdon): Remove.
-export const trigger = useValue;
-
-/**
  * @param {Promise} promise
  * @param {Number} timeout
  * @returns {Promise<unknown>}
@@ -128,7 +101,7 @@ export const promiseTimeout = (promise, timeout) => {
  */
 export const waitForCondition = (condFn, timeout = 0, interval = 10) => {
   const stopTime = timeout ? Date.now() + timeout : 0;
-  const [provider, resolver] = useValue();
+  const [provider, resolver] = trigger();
   const waiter = async () => {
     // eslint-disable-next-line no-unmodified-loop-condition
     while (!stopTime || Date.now() < stopTime) {

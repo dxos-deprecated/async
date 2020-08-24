@@ -4,7 +4,8 @@
 
 // dxos-testing-browser
 
-import { sleep, useValue, promiseTimeout, timeout, waitForCondition } from './async';
+import { sleep, promiseTimeout, timeout, waitForCondition } from './async';
+import { trigger } from './trigger';
 import { expectToThrow } from './testing';
 
 test('sleep', async () => {
@@ -14,8 +15,8 @@ test('sleep', async () => {
   expect(Date.now()).toBeGreaterThanOrEqual(now + 100);
 });
 
-test('useValue', async () => {
-  const [value, setValue] = useValue();
+test('trigger', async () => {
+  const [value, setValue] = trigger();
 
   const t = setTimeout(() => setValue('test'), 10);
 
