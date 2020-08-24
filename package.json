@@ -13,7 +13,7 @@
     "clean": "rm -rf dist",
     "coverage": "npm test -- --coverage",
     "coveralls": "npm run coverage && cat ./coverage/lcov.info | coveralls",
-    "lint": "semistandard 'src/**/*.{js,ts}'",
+    "lint": "eslint 'src/**/*.{js,ts}'",
     "prepublishOnly": "npm run test && npm run build",
     "test": "jest --verbose --passWithNoTests",
     "posttest": "npm run lint"
@@ -22,10 +22,13 @@
   "jest": {
     "preset": "ts-jest/presets/js-with-ts",
     "testEnvironment": "node",
-    "modulePathIgnorePatterns": ["dist"]
+    "modulePathIgnorePatterns": [
+      "dist"
+    ]
   },
   "dependencies": {},
   "devDependencies": {
+    "@types/jest": "^26.0.10",
     "@typescript-eslint/eslint-plugin": "^3.9.0",
     "@typescript-eslint/parser": "^3.9.0",
     "coveralls": "^3.0.7",
@@ -37,16 +40,18 @@
   "publishConfig": {
     "access": "public"
   },
-  "semistandard": {
+  "eslintConfig": {
     "parser": "@typescript-eslint/parser",
-    "env": [
-      "jest",
-      "node",
-      "browser"
-    ],
     "extends": [
-      "semistandard",
+      "eslint-config-semistandard",
       "plugin:@typescript-eslint/recommended"
-    ]
+    ],
+    "rules": {
+      "no-unused-vars": "off",
+      "no-useless-constructor": "off",
+      "no-undef": "off",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+      "@typescript-eslint/no-explicit-any": "off"
+    }
   }
 }
