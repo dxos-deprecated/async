@@ -150,7 +150,7 @@ export class Event<T = void> implements ReadOnlyEvent<T> {
    * Returns the number of persistent listeners.
    */
   listenerCount () {
-    return this._listeners.size;
+    return this._listeners.size + this._onceListeners.size;
   }
 }
 
