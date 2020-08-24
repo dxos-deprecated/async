@@ -7,3 +7,4 @@ export * from './events';
 export * from './testing';
 export * from './event';
 export * from './trigger';
+export * from './latch';

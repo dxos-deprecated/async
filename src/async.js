@@ -47,18 +47,6 @@ export const timeout = (f, timeout = 0) => new Promise((resolve, reject) => {
 });
 
 /**
- * Returns a function which triggers the callback after being called n times.
- * @param {number} n
- * @param {function} callback
- * @returns {function}
- */
-export const latch = (n, callback) => () => {
-  if (--n === 0) {
-    callback(n);
-  }
-};
-
-/**
  * @param {Promise} promise
  * @param {Number} timeout
  * @returns {Promise<unknown>}
