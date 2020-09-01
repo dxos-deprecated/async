@@ -9,3 +9,4 @@ export * from './event';
 export * from './trigger';
 export * from './latch';
 export * from './sink';
+export * from './lock';
