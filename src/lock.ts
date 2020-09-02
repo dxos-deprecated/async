@@ -23,7 +23,7 @@ export class Lock {
    */
   executeSynchronized<T> (fun: () => Promise<T>): Promise<T> {
     const promise = this._lastPromise.then(() => fun());
-    this._lastPromise = promise as any; // Cast to Promise<void>
+    this._lastPromise = promise.then(() => { /* noop */ }, () => { /* noop */ });
     return promise;
   }
 }

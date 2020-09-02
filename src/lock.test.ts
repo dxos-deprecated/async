@@ -66,4 +66,29 @@ describe('Lock', () => {
 
     expect(resolved).toEqual(false);
   });
+
+  test('errors do not break the lock', async () => {
+    const lock = new Lock();
+
+    let p1Status, p2Status;
+
+    const p1 = lock.executeSynchronized(async () => {
+      throw new Error();
+    }).then(
+      () => { p1Status = 'resolved'; },
+      () => { p1Status = 'rejected'; }
+    );
+
+    const p2 = lock.executeSynchronized(async () => { /* noop */ })
+      .then(
+        () => { p2Status = 'resolved'; },
+        () => { p2Status = 'rejected'; }
+      );
+
+    await p1;
+    await p2;
+
+    expect(p1Status).toEqual('rejected');
+    expect(p2Status).toEqual('resolved');
+  });
 });
