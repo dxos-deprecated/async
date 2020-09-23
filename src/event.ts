@@ -215,6 +215,7 @@ export class Event<T = void> implements ReadOnlyEvent<T> {
 
     this._effects.add(handle);
     return () => {
+      // eslint-disable-next-line no-unused-expressions
       handle.cleanup?.();
       this._effects.delete(handle);
     };
@@ -245,6 +246,7 @@ export class Event<T = void> implements ReadOnlyEvent<T> {
 
   private _cleanupEffects () {
     for (const handle of this._effects) {
+      // eslint-disable-next-line no-unused-expressions
       handle.cleanup?.();
       handle.cleanup = undefined;
     }
