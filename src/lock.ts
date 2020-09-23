@@ -8,7 +8,7 @@
  * Enqueing is done by attaching provided function to the `_lastPromise` via a `.then()` call and updating
  * the `_lastPromise` variable. It is important that enquing is done atomically: there are no `await`s in `executeSynchronized`
  * and it's not async while still returning a promise.
- * 
+ *
  * Java docs reference on synchronized sections: https://docs.oracle.com/javase/tutorial/essential/concurrency/locksync.html
  */
 export class Lock {

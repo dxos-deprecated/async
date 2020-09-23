@@ -1,3 +1,18 @@
+export type Effect = () => (() => void) | undefined;
+
+/**
+ * Effect that's been added to a specific Event.
+ */
+interface MaterializedEffect {
+  effect: Effect,
+  cleanup: (() => void) | undefined
+}
+
+interface EventEmitterLike {
+  on(event: string, cb: (data: any) => void): void;
+  off(event: string, cb: (data: any) => void): void;
+}
+
 /**
  * An EventEmitter variant that does not do event multiplexing and respresents a single event.
  *
@@ -29,8 +44,21 @@
  * 7. Remove the need to namespace events when developing a class with events that will be used as a base-class.
  */
 export class Event<T = void> implements ReadOnlyEvent<T> {
+  static wrap<T> (emitter: EventEmitterLike, eventName: string): Event<T> {
+    const event = new Event<T>();
+
+    event.addEffect(() => {
+      const onEvent = (data: any) => event.emit(data);
+      emitter.on(eventName, onEvent);
+      return () => emitter.off(eventName, onEvent);
+    });
+
+    return event;
+  }
+
   private readonly _listeners = new Set<(data: T) => void>();
   private readonly _onceListeners = new Set<(data: T) => void>();
+  private readonly _effects = new Set<MaterializedEffect>();
 
   /**
    * Emit an event.
@@ -53,16 +81,6 @@ export class Event<T = void> implements ReadOnlyEvent<T> {
     }
   }
 
-  private _trigger (listener: (data: T) => void, data: T) {
-    setImmediate(() => {
-      try {
-        listener(data);
-      } catch (err) {
-        console.log(`Unhandled error in Event listener: ${err}`);
-      }
-    });
-  }
-
   /**
    * Register an event listener.
    *
@@ -77,6 +95,11 @@ export class Event<T = void> implements ReadOnlyEvent<T> {
     }
 
     this._listeners.add(callback);
+
+    if (this.listenerCount() === 1) {
+      this._runEffects();
+    }
+
     return () => this.off(callback);
   }
 
@@ -92,6 +115,10 @@ export class Event<T = void> implements ReadOnlyEvent<T> {
   off (callback: (data: T) => void) {
     this._listeners.delete(callback);
     this._onceListeners.delete(callback);
+
+    if (this.listenerCount() === 0) {
+      this._cleanupEffects();
+    }
   }
 
   /**
@@ -107,7 +134,16 @@ export class Event<T = void> implements ReadOnlyEvent<T> {
     }
 
     this._onceListeners.add(callback);
-    return () => this._onceListeners.delete(callback);
+    if (this.listenerCount() === 1) {
+      this._runEffects();
+    }
+
+    return () => {
+      this._onceListeners.delete(callback);
+      if (this.listenerCount() === 0) {
+        this._runEffects();
+      }
+    };
   }
 
   /**
@@ -151,6 +187,67 @@ export class Event<T = void> implements ReadOnlyEvent<T> {
    */
   listenerCount () {
     return this._listeners.size + this._onceListeners.size;
+  }
+
+  /**
+   * Add a side effect that will be activated once the event has at least one subscriber.
+   * The provided callback can return a function that will be used to clean up after the last subscriber unsubscribes from the event.
+   * The API is similar to `useEffect` from React.
+   *
+   * ## Example:
+   * ```typescript
+   * event.addEffect(() => {
+   *   // do stuff
+   *   return () => {
+   *     // clean-up
+   *   };
+   * });
+   * ```
+   *
+   * @returns Callback that will remove this effect once called.
+   */
+  addEffect (effect: Effect): () => void {
+    const handle: MaterializedEffect = { effect, cleanup: undefined };
+
+    if (this.listenerCount() > 0) {
+      handle.cleanup = handle.effect();
+    }
+
+    this._effects.add(handle);
+    return () => {
+      handle.cleanup?.();
+      this._effects.delete(handle);
+    };
+  }
+
+  /**
+   * Turn any variant of `Event<T>` into an `Event<void>` discarding the callback parameter.
+   */
+  discardParameter (): Event<void> {
+    return this as any;
+  }
+
+  private _trigger (listener: (data: T) => void, data: T) {
+    setImmediate(() => {
+      try {
+        listener(data);
+      } catch (err) {
+        console.log(`Unhandled error in Event listener: ${err}`);
+      }
+    });
+  }
+
+  private _runEffects () {
+    for (const handle of this._effects) {
+      handle.cleanup = handle.effect();
+    }
+  }
+
+  private _cleanupEffects () {
+    for (const handle of this._effects) {
+      handle.cleanup?.();
+      handle.cleanup = undefined;
+    }
   }
 }
 
@@ -209,4 +306,9 @@ export interface ReadOnlyEvent<T = void> {
    * @param expectedCount
    */
   waitForCount(expectedCount: number): Promise<T>;
+
+  /**
+   * Turn any variant of `Event<T>` into an `Event<void>` discarding the callback parameter.
+   */
+  discardParameter(): Event<void>;
 }
