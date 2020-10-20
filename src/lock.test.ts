@@ -1,4 +1,4 @@
-import { Lock } from './lock';
+import { Lock, synchronized } from './lock';
 import { sleep } from './async';
 
 describe('Lock', () => {
@@ -90,5 +90,62 @@ describe('Lock', () => {
 
     expect(p1Status).toEqual('rejected');
     expect(p2Status).toEqual('resolved');
+  });
+});
+
+class TestClass {
+  constructor (private events: string[]) {}
+
+  @synchronized
+  async foo () {
+    this.events.push('foo start');
+    await sleep(10);
+    this.events.push('foo end');
+  }
+
+  @synchronized
+  async bar () {
+    this.events.push('bar start');
+    await sleep(10);
+    this.events.push('bar end');
+  }
+}
+
+describe('synchronized decorator', () => {
+  test('differnet methods on same instance', async () => {
+    const events: string[] = [];
+    const testClass = new TestClass(events);
+
+    const p1 = testClass.foo();
+    const p2 = testClass.bar();
+
+    await p1;
+    await p2;
+
+    expect(events).toEqual([
+      'foo start',
+      'foo end',
+      'bar start',
+      'bar end'
+    ]);
+  });
+
+  test('methods on different instances', async () => {
+    const events: string[] = [];
+    const testClass1 = new TestClass(events);
+    const testClass2 = new TestClass(events);
+
+    const p1 = testClass1.foo();
+    const p2 = testClass2.bar();
+
+    await p1;
+    await p2;
+
+    expect(events).toEqual([
+      'foo start',
+      'bar start',
+      'foo end',
+      'bar end'
+    ]);
   });
 });

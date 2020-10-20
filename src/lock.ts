@@ -29,3 +29,24 @@ export class Lock {
     return promise;
   }
 }
+
+const classLockSymbol = Symbol('classLock');
+
+/**
+ * Same as `synchronized` in Java.
+ *
+ * Uses a lock global to the current class instance.
+ * This way every synchronized method on the same instance will share a single lock.
+ */
+export function synchronized (
+  target: any,
+  propertyName: string,
+  descriptor: TypedPropertyDescriptor<(...args: any) => any>
+) {
+  const method = descriptor.value!;
+  descriptor.value = function (this: any, ...args: any) {
+    const lock: Lock = this[classLockSymbol] ?? (this[classLockSymbol] = new Lock());
+
+    return lock.executeSynchronized(() => method.apply(this, args));
+  };
+}
