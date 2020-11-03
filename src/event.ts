@@ -221,6 +221,24 @@ export class Event<T = void> implements ReadOnlyEvent<T> {
     };
   }
 
+  debounce (timeout = 0) {
+    const debouncedEvent = new Event<void>();
+
+    let firing = false;
+
+    debouncedEvent.addEffect(() => this.on(() => {
+      if (!firing) {
+        firing = true;
+        setTimeout(() => {
+          firing = false;
+          debouncedEvent.emit();
+        }, timeout);
+      }
+    }));
+
+    return debouncedEvent;
+  }
+
   /**
    * Turn any variant of `Event<T>` into an `Event<void>` discarding the callback parameter.
    */
