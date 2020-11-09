@@ -1,4 +1,9 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 import { EventEmitter } from 'events';
+
 import { trigger } from './trigger';
 
 /**

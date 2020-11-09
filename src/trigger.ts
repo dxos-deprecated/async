@@ -1,3 +1,7 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 /**
  * Returns a tuple containing a Promise that will be resolved when the resolver function is called.
  */
@@ -18,11 +22,11 @@ export function trigger <T> (timeout?: number): [() => Promise<T>, (arg: T) => v
   ];
 }
 
-// TODO(burdon): Remove.
 /**
  * Use `trigger` instead.
  * @deprecated
  */
+// TODO(burdon): Remove.
 export const useValue = trigger;
 
 /**
