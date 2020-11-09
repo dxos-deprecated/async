@@ -4,6 +4,7 @@
 
 import { trigger } from './trigger';
 
+// TODO(burdon): Remove.
 export const noop = (...args) => args;
 
 /**

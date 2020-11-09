@@ -1,15 +1,18 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 /**
  * A locking meachnism to ensure that a given section of the code is executed by only a single "thread" at a time.
- *
- * # How it works
  *
  * Functions are chained in a structure similar to a linked list. `_lastPromise` always contains the function
  * that will finish executing last. Initially it is set to `Promise.resolve()` - promise that resolves immediately.
  * Enqueing is done by attaching provided function to the `_lastPromise` via a `.then()` call and updating
- * the `_lastPromise` variable. It is important that enquing is done atomically: there are no `await`s in `executeSynchronized`
- * and it's not async while still returning a promise.
+ * the `_lastPromise` variable. It is important that enquing is done atomically: there are no `await`s in
+ * `executeSynchronized` and it's not async while still returning a promise.
  *
- * Java docs reference on synchronized sections: https://docs.oracle.com/javase/tutorial/essential/concurrency/locksync.html
+ * Java docs reference on synchronized sections:
+ * https://docs.oracle.com/javase/tutorial/essential/concurrency/locksync.html
  */
 export class Lock {
   private _lastPromise = Promise.resolve();
@@ -30,7 +33,8 @@ export class Lock {
   }
 }
 
-const classLockSymbol = Symbol('classLock');
+// TODO(burdon): Document.
+const classLockSymbol = Symbol('class-lock');
 
 /**
  * Same as `synchronized` in Java.
