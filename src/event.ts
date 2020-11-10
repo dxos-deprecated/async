@@ -257,7 +257,8 @@ export class Event<T = void> implements ReadOnlyEvent<T> {
       try {
         listener(data);
       } catch (err) {
-        console.log(`Unhandled error in Event listener: ${err}`);
+        console.error('Unhandled error in Event listener:');
+        console.error(err);
       }
     });
   }
