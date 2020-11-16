@@ -2,6 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
+import { trigger } from './trigger';
+
 /**
  * A locking meachnism to ensure that a given section of the code is executed by only a single "thread" at a time.
  *
@@ -26,10 +28,20 @@ export class Lock {
    *
    * WARNING: Calling `executeSynchronized` inside of `executeSynchronized` on the same lock instance is a deadlock.
    */
-  executeSynchronized<T> (fun: () => Promise<T>): Promise<T> {
-    const promise = this._lastPromise.then(() => fun());
-    this._lastPromise = promise.then(() => { /* noop */ }, () => { /* noop */ });
-    return promise;
+  async executeSynchronized<T> (fun: () => Promise<T>): Promise<T> {
+    const prevPromise = this._lastPromise;
+
+    // Immediately update the promise before invoking any async actions so that next invocation waits for our task to complete.
+    const [getPromise, resolve] = trigger();
+    this._lastPromise = getPromise();
+
+    await prevPromise;
+    try {
+      const value = await fun();
+      return value;
+    } finally {
+      resolve();
+    }
   }
 }
 

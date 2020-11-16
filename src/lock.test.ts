@@ -38,6 +38,7 @@ describe('Lock', () => {
       await sleep(10);
       events.push('lock2');
     }).then(() => { events.push('p1 resolve'); });
+
     const p2 = lock.executeSynchronized(async () => {
       events.push('lock3');
     }).then(() => { events.push('p2 resolve'); });
@@ -49,8 +50,8 @@ describe('Lock', () => {
     expect(events).toEqual([
       'lock1',
       'lock2',
-      'p1 resolve',
       'lock3',
+      'p1 resolve',
       'p2 resolve',
       'after'
     ]);
@@ -94,6 +95,31 @@ describe('Lock', () => {
 
     expect(p1Status).toEqual('rejected');
     expect(p2Status).toEqual('resolved');
+  });
+
+  test('errors are propagated with stack traces', async () => {
+    const lock = new Lock();
+
+    async function throwsError () {
+      throw new Error();
+    }
+
+    let error: Error;
+    async function callLock () {
+      try {
+        await lock.executeSynchronized(async () => {
+          await throwsError();
+        });
+      } catch (err) {
+        error = err;
+        throw error;
+      }
+    }
+
+    await expect(() => callLock()).rejects.toThrowError();
+
+    expect(error!.stack!.includes('throwsError')).toBe(true);
+    expect(error!.stack!.includes('callLock')).toBe(true);
   });
 });
 
