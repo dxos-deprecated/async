@@ -1,6 +1,6 @@
 {
   "name": "@dxos/async",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "Basic async utils",
   "files": [
     "dist"
