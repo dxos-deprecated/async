@@ -4,7 +4,7 @@
  * @param timeout
  * @param getError
  */
-export function timeout<T> (action: () => Promise<T>, timeout: number, getError?: () => Error): Promise<T> {
+export function runWithTimeout<T> (action: () => Promise<T>, timeout: number, getError?: () => Error): Promise<T> {
   function throwOnTimeout (timeout: number, getError: () => Error): Promise<never> {
     // eslint-disable-next-line promise/param-names
     return new Promise((_, reject) => setTimeout(() => reject(getError()), timeout));
