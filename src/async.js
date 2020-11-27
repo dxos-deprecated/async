@@ -51,6 +51,7 @@ export const timeout = (f, timeout = 0) => new Promise((resolve, reject) => {
  * @param {Promise} promise
  * @param {Number} timeout
  * @returns {Promise<unknown>}
+ * @deprecated Use `timeout`.
  */
 export const promiseTimeout = (promise, timeout) => {
   let cancelTimeout;
